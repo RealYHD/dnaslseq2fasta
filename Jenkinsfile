@@ -23,7 +23,6 @@ pipeline {
             steps {
                 sh "python -m build"
                 sh "grayskull pypi dist/*.tar.gz --maintainers 'Harrison Deng'"
-                sh "python scripts/patch_recipe.py"
                 sh 'conda build dnaslseq2fasta -c bioconda -c conda-forge --output-folder conda-bld --verify'
             }
         }
