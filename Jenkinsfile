@@ -2,14 +2,14 @@ pipeline {
     agent {
         kubernetes {
             cloud 'rsys-devel'
-            defaultContainer 'pip'
-            inheritFrom 'pip'
+            defaultContainer 'miniforge3'
+            inheritFrom 'miniforge'
         }
     }
     stages {
         stage("install") {
             steps {
-                sh 'pip install -r requirements.txt'
+                sh 'conda env update -n base -f environment.yml'
             }
         }
         stage("unit tests") {
@@ -24,7 +24,7 @@ pipeline {
                 sh "python -m build"
                 sh "grayskull pypi dist/*.tar.gz --maintainers 'Harrison Deng'"
                 sh "python scripts/patch_recipe.py"
-                sh 'conda build dnasleq2fasta -c bioconda --output-folder conda-bld --verify'
+                sh 'conda build dnaslseq2fasta -c bioconda -c conda-forge --output-folder conda-bld --verify'
             }
         }
         stage("archive") {
@@ -36,13 +36,16 @@ pipeline {
             parallel {
                 stage ("git.reslate.systems") {
                     when {
-                        branch '**/main'
+                        not {
+                            tag '*.*.*'
+                        }
                     }
+
                     environment {
                         CREDS = credentials('username-password-rs-git')
                     }
                     steps {
-                        sh script: 'python -m twine upload --repository-url https://git.reslate.systems/api/packages/ydeng/pypi -u ${CREDS_USR} -p ${CREDS_PSW} --non-interactive --disable-progress-bar --verbose dist/*'
+                        sh 'python -m twine upload --repository-url https://git.reslate.systems/api/packages/ydeng/pypi -u ${CREDS_USR} -p ${CREDS_PSW} --non-interactive --disable-progress-bar --verbose dist/*'
                         sh 'curl --user ${CREDS_USR}:${CREDS_PSW} --upload-file conda-bld/**/*.conda https://git.reslate.systems/api/packages/${CREDS_USR}/conda/$(basename conda-bld/**/*.conda)'
                     }
                 }
@@ -54,7 +57,7 @@ pipeline {
                         TOKEN = credentials('pypi.org')
                     }
                     steps {
-                        sh script: 'python -m twine upload -u __token__ -p ${TOKEN} --non-interactive --disable-progress-bar --verbose dist/*'
+                        sh returnStatus: true, script: 'python -m twine upload -u __token__ -p ${TOKEN} --non-interactive --disable-progress-bar --verbose dist/*'
                     }
                 }
             }
