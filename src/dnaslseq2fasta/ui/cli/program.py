@@ -19,13 +19,22 @@ def run():
         "output",
         help="The output folder."
     )
+    argparser.add_argument(
+        "-t", "--extension",
+        type=str,
+        default="fas",
+        required=False,
+        help="Fasta file extension. Defaults to \".fas\".",
+        dest="extension"
+    )
+
     args = argparser.parse_args()
     
     for dnas_file in args.DNAS:
         dnas_seq = read_dnasl_seq(dnas_file)
         general_seq_data = dnaslseq2general(dnas_seq)
         os.makedirs(path.abspath(args.output), exist_ok=True)
-        general2fasta(path.join(path.abspath(args.output), path.basename(dnas_file)), general_seq_data)
+        general2fasta(path.join(path.abspath(args.output), path.splitext(path.basename(dnas_file))[0] + "." + args.extension), general_seq_data)
 
 def main():
     run()
