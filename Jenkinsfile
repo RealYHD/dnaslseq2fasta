@@ -22,8 +22,6 @@ pipeline {
         stage("build") {
             steps {
                 sh "python -m build"
-                sh "grayskull pypi dist/*.tar.gz --maintainers 'Harrison Deng'"
-                sh 'conda build dnaslseq2fasta -c bioconda -c conda-forge --output-folder conda-bld --verify'
             }
         }
         stage("archive") {
@@ -45,7 +43,6 @@ pipeline {
                     }
                     steps {
                         sh 'python -m twine upload --repository-url https://git.reslate.systems/api/packages/ydeng/pypi -u ${CREDS_USR} -p ${CREDS_PSW} --non-interactive --disable-progress-bar --verbose dist/*'
-                        sh 'curl --user ${CREDS_USR}:${CREDS_PSW} --upload-file conda-bld/**/*.conda https://git.reslate.systems/api/packages/${CREDS_USR}/conda/$(basename conda-bld/**/*.conda)'
                     }
                 }
                 stage ("pypi.org") {
