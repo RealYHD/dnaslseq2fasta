@@ -12,7 +12,7 @@ dependencies = [
 
 requires-python = ">=3.12"
 description = "Converts DNAStar Lasergene .seq files to fasta files."
-license = {text = "GPL-3.0-or-later"}
+license = "GPL-3.0-or-later"
 
 [project.urls]
 Homepage = "https://github.com/RealYHD/dnaslseq2fasta"
