@@ -1,6 +1,6 @@
 pytest
 pytest-asyncio
-python-build
+build
 twine
 setuptools_scm
 pytest-cov
